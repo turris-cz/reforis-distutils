@@ -4,15 +4,12 @@ import pathlib
 import re
 from distutils.cmd import Command
 
-from setuptools.command.build_py import build_py
-
 
 class ForisBuild(Command):
-    def run(self, path):
-        build_py.run(self)
-        self.npm_install_and_build(path)
-        self.copy_translations_from_forisjs(path)
-        self.compile_translations(path)
+    def run(self):
+        self.npm_install_and_build(self.root_path)
+        self.copy_translations_from_forisjs(self.root_path)
+        self.compile_translations(self.root_path)
 
     def npm_install_and_build(self, path):
         os.system(f'cd {path}/js; npm install --save-dev')
@@ -26,13 +23,13 @@ class ForisBuild(Command):
             os.system(f'cp {po} {path_to_copy}')
 
     def compile_translations(self, path):
-        def compile_language(domain, path):
+        def compile_language(domain, trans_path):
             from babel.messages import frontend as babel
             distribution = copy.copy(self.distribution)
             cmd = babel.compile_catalog(distribution)
-            cmd.input_file = str(path)
-            lang = re.match(r".*/reforis/translations/([^/]+)/LC_MESSAGES/.*po", str(path)).group(1)
-            out_path = BASE_DIR / self.build_lib / f"reforis/translations/{lang}/LC_MESSAGES/{domain}.mo"
+            cmd.input_file = str(trans_path)
+            lang = re.match(r".*/reforis/translations/([^/]+)/LC_MESSAGES/.*po", str(trans_path)).group(1)
+            out_path = path / self.build_lib / f"reforis/translations/{lang}/LC_MESSAGES/{domain}.mo"
             out_path.parent.mkdir(parents=True, exist_ok=True)
             cmd.output_file = str(out_path)
             cmd.domain = domain
@@ -40,9 +37,15 @@ class ForisBuild(Command):
             cmd.run()
 
         def compile_domain(domain):
-            for path in BASE_DIR.glob(f'reforis/translations/*/LC_MESSAGES/{domain}.po'):
-                compile_language(domain, path)
+            for trans_path in path.glob(f'reforis/translations/*/LC_MESSAGES/{domain}.po'):
+                compile_language(domain, trans_path)
 
         compile_domain('messages')
         compile_domain('tzinfo')
         compile_domain('forisjs')
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
