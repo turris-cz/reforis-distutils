@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="reforis_distutils",
-    version="0.0.1",
+    version="0.1.0",
     description="Distutils patches to add commands for reForis handling",
     author="CZ.NIC, z. s. p. o.",
     url="https://gitlab.labs.nic.cz/turris/reforis/reforis-distutils",
