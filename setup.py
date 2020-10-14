@@ -7,7 +7,7 @@ setup(
     version="0.1.0",
     description="Distutils patches to add commands for reForis handling",
     author="CZ.NIC, z. s. p. o.",
-    url="https://gitlab.labs.nic.cz/turris/reforis/reforis-distutils",
+    url="https://gitlab.nic.cz/turris/reforis/reforis-distutils",
     license="GPL-3.0",
     requires=[],
     install_requires=["babel"],
