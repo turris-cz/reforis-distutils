@@ -1,15 +1,20 @@
 import copy
-import os
 import pathlib
 import re
+import shutil
+import subprocess
 from distutils.cmd import Command
 
 
 class BaseForisBuild(Command):
     def npm_install_and_build(self, path, module_name):
-        os.system(f'cd {path}/js; npm install --save-dev')
+        subprocess.run(["npm", "install", "--save-dev"], cwd=f"{path}/js", check=True)
         build_dir = path / self.build_lib / 'reforis_static' / module_name / 'js'
-        os.system(f'cd {path}/js; npm run-script build -- -o {build_dir}/app.min.js')
+        subprocess.run(
+            ["npm", "run-script", "build", "--", "-o", f"{build_dir}/app.min.js"],
+            cwd=f"{path}/js",
+            check=True,
+        )
 
     def compile_translations(self, path, module_name, domains):
         def compile_language(domain, trans_path):
@@ -49,7 +54,7 @@ class ForisBuild(BaseForisBuild):
         for po in path.glob('js/node_modules/foris/translations/*/LC_MESSAGES/forisjs.po'):
             lang = pathlib.Path(po).parent.parent.name
             path_to_copy = path / f'reforis/translations/{lang}/LC_MESSAGES/forisjs.po'
-            os.system(f'cp {po} {path_to_copy}')
+            shutil.copyfile(po, path_to_copy)
 
 
 class ForisPluginBuild(BaseForisBuild):
